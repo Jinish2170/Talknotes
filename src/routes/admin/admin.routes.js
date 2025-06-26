@@ -1,9 +1,10 @@
 import express from "express";
-import { getNoteStyles, createNoteStyle } from "D:/noteStyle.service";
 
 const router = express.Router();
 
 
-router.get("/noteStyles", getNoteStyles);
 router.post("/noteStyles", createNoteStyle);
+router.put("/noteStyles/:id", updateNoteStyle);
+router.delete("/noteStyles/:id", deleteNoteStyle);
+
 export default router
