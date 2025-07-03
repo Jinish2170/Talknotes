@@ -6,12 +6,11 @@ dotenv.config(
 import connectDB from './db/db_connection.js';
 import app from './configs/express.config.js'
 
-console.log("hello server");
-
 connectDB()
 .then(()=>{
-    app.listen(process.env.PORT || 3000, ()=>{
-        console.log("Server is running.........")
+    const port = process.env.PORT || 3000;
+    app.listen(port, ()=>{
+        console.log(`Server is running on port ${port}`)
     })
 })
 .catch((error)=>{

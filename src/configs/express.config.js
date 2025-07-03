@@ -1,12 +1,36 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import fileUpload from "express-fileupload";
+
+// Verify environment variables silently
+const envCheck = {
+    NODE_ENV: process.env.NODE_ENV,
+    CLOUDINARY_CONFIG: {
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY ? "present" : "missing",
+        api_secret: process.env.CLOUDINARY_API_SECRET ? "present" : "missing"
+    }
+};
+
+// Only log if there's a missing configuration
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    console.error("Missing required Cloudinary configuration:", envCheck.CLOUDINARY_CONFIG);
+}
 
 import indexRoute from "../routes/index.routes.js";
 import bodyParser from "body-parser";
 import constants from "../constants/index.js";
 
 const app = express();
+
+app.use(fileUpload({
+    useTempFiles: true,
+    tempFileDir: './tmp/',
+    createParentPath: true,
+    debug: false, // Disable debug logging
+    limits: { fileSize: 50 * 1024 * 1024 } // 50MB max file size
+}));
 
 app.use(bodyParser.json());
 
@@ -41,7 +65,10 @@ const corsOption = {
 
 app.use(cors(corsOption));
 
-app.use(morgan("dev"));
+// Use Morgan only for errors
+app.use(morgan("dev", {
+    skip: function (req, res) { return res.statusCode < 400 }
+}));
 
 // Router
 app.use(constants.APPLICATION.url.basePath, indexRoute);
