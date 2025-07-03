@@ -14,6 +14,14 @@ const userSchema = new mongoose.Schema({
             "email"
         ]
     },
+    password: {
+        type: String,
+        require: true
+    },
+    is_admin: {
+        type: Boolean,
+        default: false
+    },
     is_active: {
         type: Boolean,
         default: true
@@ -21,14 +29,7 @@ const userSchema = new mongoose.Schema({
     name:{
         type: String,
         require: true
-    },
-    apple_id: {
-        type: String,
-        unique: true,
-        required: function() {
-            return this.auth_type === "apple";
-        }
     }
-},{timestamps});
+},{timestamps :true});
 
 export const User = mongoose.model("user", userSchema);

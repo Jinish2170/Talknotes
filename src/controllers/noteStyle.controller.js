@@ -113,7 +113,4 @@ const getNoteStyles = async (req, res) => {
     }
 };
 
-export default {    createNoteStyle, 
-                    deleteNoteStyle,    
-                    updateNoteStyle, 
-                    getNoteStyles };
+export {    createNoteStyle, deleteNoteStyle, updateNoteStyle, getNoteStyles };

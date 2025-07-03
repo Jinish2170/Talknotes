@@ -1,7 +1,14 @@
 import dotenv from "dotenv";
-dotenv.config()
+import express from "express";
+dotenv.config(
+    {path: './.env'}
+)
 import connectDB from './db/db_connection.js';
 import app from './configs/express.config.js'
+import indexRoutes from './routes/index.routes.js'; // Mount API routes
+
+console.log("hello server");
+
 
 connectDB()
 .then(()=>{
@@ -12,3 +19,6 @@ connectDB()
 .catch((error)=>{
     console.log("mongodb connection failed", error);
 })
+
+app.use(express.json());
+app.use('/', indexRoutes); // Mount API routes

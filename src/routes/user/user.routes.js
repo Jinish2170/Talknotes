@@ -1,9 +1,17 @@
 import express from "express";
-import { getNoteStyles, createNoteStyle } from "D:/noteStyle.service";
-
+import { getNoteStyles } from "../../controllers/noteStyle.controller.js";
+import { createNote, getNotes, updateNote, deleteNote } from "../../controllers/note.controller.js";
+import { registerUser, loginUser, updateUser } from "../../controllers/user.controller.js";
 const router = express.Router();
 
 
 router.get("/noteStyles", getNoteStyles);
-router.post("/noteStyles", createNoteStyle);
-export default router
+router.post("/createNote", createNote);
+router.get("/getNotes", getNotes);
+router.put("/updateNote/:noteId", updateNote);
+router.delete("/deleteNote/:noteId", deleteNote);
+router.post("/registerUser", registerUser);
+router.post("/loginUser", loginUser);
+router.put("/updateUser/:userId", updateUser);
+
+export default router;  

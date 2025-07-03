@@ -10,6 +10,6 @@ const noteStyleSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-},{timestamps});
+},{timestamps :true});
 
 export const NoteStyle = mongoose.model("noteStyle", noteStyleSchema);

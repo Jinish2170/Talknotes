@@ -10,8 +10,8 @@ const noteSchema = new mongoose.Schema({
         require: true
     },
     note_style: {
-        type: Schema.Types.ObjectId,
-        ref: "note",
+        type:  mongoose.Schema.Types.ObjectId,
+        ref: "noteStyle",
         require: true
     },
     audio_transcription: {
@@ -26,6 +26,6 @@ const noteSchema = new mongoose.Schema({
         type: String,
         require: true
     }
-},{timestamps});
+},{timestamps :true});
 
 export const Note = mongoose.model("note", noteSchema);

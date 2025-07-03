@@ -14,6 +14,6 @@ otp_expiry: {
         type: Date,
         required: true
     }
-},{timestamps});
+},{timestamps :true});
 
 export const Otp = mongoose.model("otp", otpSchema);
