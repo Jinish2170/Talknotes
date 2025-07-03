@@ -1,30 +1,26 @@
 import { NoteStyle } from "../models/noteStyle.model.js"; 
 
 
-    const createNoteStyle = async (req, res) => {
+const createNoteStyle = async (styleData) => {
     try {
-        const { style, style_description } = req.body;
+        const { style_name, style_description } = styleData;
     
-        if (!style || !style_description) {
-            throw new Error("Style and style description are required");
+        if (!style_name || !style_description) {
+            throw new Error("Style name and style description are required");
         }
     
         const noteStyle = new NoteStyle({
-            style,
+            style_name,
             style_description
         });
     
         await noteStyle.save();
         return noteStyle;
     
-}
-        
-
-catch (error) {
-    console.error("Error creating note style:", error);
-    throw new Error("Failed to create note style");
-    
-}
+    } catch (error) {
+        console.error("Error creating note style:", error);
+        throw new Error("Failed to create note style");
+    }
 };
 
 const deleteNoteStyle = async (id) => {

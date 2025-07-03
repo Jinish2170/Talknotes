@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import {noteStyle} from '../models/noteStyle.js'; 
 
 // Initialize the API client
-const genai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "AIzaSyANMKlKA8gX-2N9UaijwySgmmvVMjfdxls");
+const genai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 
 /**

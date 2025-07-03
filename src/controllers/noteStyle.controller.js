@@ -1,9 +1,13 @@
 import noteStyleService from "../services/noteStyle.service.js";
+import { sendMsgResponse } from "../utils/ApiError.js";
+import { sendObjectResponse } from "../utils/ApiResponse.js";
+import { StringError } from "../errors/string.error.js";
+import httpStatusCodes from "http-status-codes";
 
 const createNoteStyle = async (req, res) => {
     try {
-        const { style, style_description } = req.body;
-        const noteStyle = await noteStyleService.createNoteStyle({ style, style_description });
+        const { style_name, style_description } = req.body;
+        const noteStyle = await noteStyleService.createNoteStyle({ style_name, style_description });
         return sendObjectResponse({
         res,
         result: noteStyle,
