@@ -1,14 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import {noteStyle} from '../models/noteStyle.js'; 
-
-// Initialize the API client
 const genai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 
 /**
  * Generate smart summary for voice notes
  */
-export const generateSmartSummary = async (text, maxTokens = 1250) => {
+const generateSmartSummary = async (text, maxTokens = 1250) => {
   try {
     const model = await genai.getGenerativeModel({ 
       model: "gemini-2.0-flash-exp",
@@ -46,7 +43,7 @@ GUIDELINES:
 /**
  * Extract action items from voice notes
  */
-export const generateActionList = async (text, maxTokens = 200) => {
+const generateActionList = async (text, maxTokens = 200) => {
   try {
     const model = genai.getGenerativeModel({ 
       model: "gemini-2.0-flash-exp",
@@ -85,7 +82,7 @@ GUIDELINES:
 /**
  * Generate content from transcription using selected style from database
  */
-export const generateContentFromStyleSelected = async (audioTranscription, styleId) => {
+const generateContentFromStyleSelected = async (audioTranscription, styleId) => {
   try {
     // Import database model
     const { NoteStyle } = await import('../models/noteStyle.js');
@@ -143,4 +140,4 @@ Please transform this transcription into a well-formatted note following the sty
   }
 };
 
-export default genai;
+export default {genai, generateSmartSummary, generateActionList, generateContentFromStyleSelected};

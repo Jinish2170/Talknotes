@@ -1,5 +1,4 @@
 import { SpeechClient } from '@google-cloud/speech';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -48,7 +47,7 @@ const speechClient = new SpeechClient({
 });
 
 /**
- * Download audio file from URL (Cloudinary)
+ * Download audio file from URL (Cloudinary) stored in database in field ai_note
  */
 const downloadAudioFromUrl = async (audioUrl) => {
   return new Promise((resolve, reject) => {
