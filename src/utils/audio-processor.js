@@ -1,136 +1,97 @@
+import { uploadOnCloudinary } from './cloudinary.js';
 import { processAudioNoteFromDB } from '../configs/speesh-to-text.config.js';
-import { generateContentFromStyleSelected, generateSmartSummary, generateActionList } from '../configs/gemini.config.js';
-import { Note } from '../models/note.model.js';
-import { NoteStyle } from '../models/noteStyle.model.js';
-import fs from 'fs';
+import { generateContentFromStyleSelected, generateSmartSummary } from '../configs/gemini.config.js';
 
 /**
- * Process complete audio note workflow from database
- * 1. Download audio from Cloudinary URL
- * 2. Transcribe audio to text
- * 3. Process transcription with selected style using Gemini
- * 4. Generate additional AI content (summary, actions)
+ * Complete audio processing pipeline
+ * Handles: Upload to Cloudinary -> Speech-to-Text -> Gemini Processing
  */
-export const processCompleteAudioNote = async (noteId) => {
+export const processCompleteAudioNote = async (audioFile, styleName) => {
   try {
-    // Find the note in database
-    const note = await Note.findById(noteId).populate('note_style');
-    if (!note) {
-      throw new Error(`Note with ID ${noteId} not found`);
+    console.log('Starting complete audio processing pipeline...');
+
+    // Step 1: Upload audio to Cloudinary
+    console.log('Uploading audio to Cloudinary...');
+    const cloudinaryResponse = await uploadOnCloudinary(audioFile.tempFilePath);
+    
+    if (!cloudinaryResponse?.secure_url) {
+      throw new Error('Failed to upload audio to Cloudinary');
     }
 
-    console.log('Processing audio note:', noteId);
-    console.log('Audio URL:', note.audio_note);
-    console.log('Selected Style:', note.note_style.style_name);
+    const audioUrl = cloudinaryResponse.secure_url;
+    console.log('Audio uploaded successfully:', audioUrl);
 
-    // Step 1: Process audio from Cloudinary URL and get transcription
-    const transcriptionResult = await processAudioNoteFromDB(note.audio_note);
+    // Step 2: Convert audio to text using Google Speech-to-Text
+    console.log('Starting speech-to-text conversion...');
+    const transcriptionResult = await processAudioNoteFromDB(audioUrl);
     
-    if (!transcriptionResult.success) {
-      throw new Error(`Transcription failed: ${transcriptionResult.error}`);
+    if (!transcriptionResult.success || !transcriptionResult.transcript) {
+      throw new Error(transcriptionResult.error || 'Speech-to-text conversion failed');
     }
--
-    console.log('Transcription completed:', transcriptionResult.transcript.substring(0, 100) + '...');
 
-    // Step 2: Update note with transcription
-    note.audio_transcription = transcriptionResult.transcript;
-    
-    // Step 3: Process transcription with selected style using Gemini
-    const styledContent = await generateContentFromStyleSelected(
-      transcriptionResult.transcript, 
-      note.note_style._id
-    );
+    const transcript = transcriptionResult.transcript;
+    console.log('Speech-to-text completed. Transcript length:', transcript.length);
 
-    // Step 4: Generate additional AI content
-    const summary = await generateSmartSummary(transcriptionResult.transcript);
-    const actionItems = await generateActionList(transcriptionResult.transcript);
+    // Step 3: Process with Gemini AI (parallel processing for efficiency)
+    console.log('Processing with Gemini AI...');
+    const [aiNote, summary] = await Promise.all([
+      generateContentFromStyleSelected(transcript, styleName),
+      generateSmartSummary(transcript)
+    ]);
 
-    // Step 5: Update note with all AI-generated content
-    note.ai_note = styledContent;
-    note.text_note = `${styledContent}\n\n--- SUMMARY ---\n${summary}\n\n--- ACTION ITEMS ---\n${actionItems}`;
-    
-    // Generate title from first few words of styled content
-    const titleWords = styledContent.split(' ').slice(0, 8).join(' ');
-    note.note_title = titleWords.length > 50 ? titleWords.substring(0, 47) + '...' : titleWords;
+    console.log('Gemini processing completed successfully');
 
-    // Save updated note
-    await note.save();
-
-    console.log('Audio note processing completed successfully');
-
+    // Return complete processed data
     return {
-      success: true,
-      noteId: note._id,
-      transcription: transcriptionResult.transcript,
-      styledContent: styledContent,
+      audio_note: audioUrl,
+      audio_transcription: transcript,
+      ai_note: aiNote,
       summary: summary,
-      actionItems: actionItems,
-      title: note.note_title,
-      confidence: transcriptionResult.confidence,
-      wordCount: transcriptionResult.wordCount
+      style_name: styleName,
+      success: true
     };
 
   } catch (error) {
-    console.error('Complete audio note processing error:', error);
-    throw new Error(`Failed to process audio note: ${error.message}`);
+    console.error('Audio processing pipeline error:', error);
+    throw new Error(`Audio processing failed: ${error.message}`);
   }
 };
 
 /**
- * Process only transcription part (for existing notes)
+ * Process audio from existing Cloudinary URL
+ * Used when audio is already uploaded
  */
-export const processAudioTranscriptionOnly = async (audioUrl, options = {}) => {
+export const processExistingAudioNote = async (audioUrl, styleName) => {
   try {
-    const transcriptionResult = await processAudioNoteFromDB(audioUrl, options);
+    console.log('Processing existing audio from URL:', audioUrl);
+
+    // Step 1: Convert audio to text
+    const transcriptionResult = await processAudioNoteFromDB(audioUrl);
     
-    if (!transcriptionResult.success) {
-      throw new Error(`Transcription failed: ${transcriptionResult.error}`);
+    if (!transcriptionResult.success || !transcriptionResult.transcript) {
+      throw new Error(transcriptionResult.error || 'Speech-to-text conversion failed');
     }
 
-    return {
-      success: true,
-      transcript: transcriptionResult.transcript,
-      confidence: transcriptionResult.confidence,
-      wordCount: transcriptionResult.wordCount
-    };
+    const transcript = transcriptionResult.transcript;
 
-  } catch (error) {
-    console.error('Audio transcription error:', error);
-    throw new Error(`Failed to transcribe audio: ${error.message}`);
-  }
-};
-
-/**
- * Process transcription with style (for existing transcriptions)
- */
-export const processTranscriptionWithStyle = async (transcription, styleId) => {
-  try {
-    // Validate style exists
-    const style = await NoteStyle.findById(styleId);
-    if (!style) {
-      throw new Error(`Style with ID ${styleId} not found`);
-    }
-
-    const styledContent = await generateContentFromStyleSelected(transcription, styleId);
-    const summary = await generateSmartSummary(transcription);
-    const actionItems = await generateActionList(transcription);
+    // Step 2: Process with Gemini AI
+    const [aiNote, summary] = await Promise.all([
+      generateContentFromStyleSelected(transcript, styleName),
+      generateSmartSummary(transcript)
+    ]);
 
     return {
-      success: true,
-      styledContent: styledContent,
+      audio_note: audioUrl,
+      audio_transcription: transcript,
+      ai_note: aiNote,
       summary: summary,
-      actionItems: actionItems,
-      styleName: style.style_name
+      style_name: styleName,
+      success: true
     };
 
   } catch (error) {
-    console.error('Transcription styling error:', error);
-    throw new Error(`Failed to process transcription with style: ${error.message}`);
+    console.error('Existing audio processing error:', error);
+    throw new Error(`Audio processing failed: ${error.message}`);
   }
 };
 
-export default {
-  processCompleteAudioNote,
-  processAudioTranscriptionOnly,
-  processTranscriptionWithStyle
-};

@@ -87,6 +87,8 @@ export const processAudioNoteFromDB = async (audioNoteUrl, options = {}) => {
       enableAutomaticPunctuation: true,
       enableWordTimeOffsets: true,
       model: 'latest_long', // Better for longer audio
+      audioChannelCount: 2, // Handle stereo audio
+      enableSeparateRecognitionPerChannel: false, // Merge channels
     };
 
     const config = { ...defaultConfig, ...options };
@@ -109,7 +111,6 @@ export const processAudioNoteFromDB = async (audioNoteUrl, options = {}) => {
     if (!response.results || response.results.length === 0) {
       return {
         transcript: '',
-        confidence: 0,
         success: false,
         error: 'No speech detected in audio'
       };
@@ -119,24 +120,17 @@ export const processAudioNoteFromDB = async (audioNoteUrl, options = {}) => {
       .map(result => result.alternatives[0].transcript)
       .join('\n');
 
-    const confidence = response.results.length > 0 
-      ? response.results[0].alternatives[0].confidence 
-      : 0;
-
     console.log('Transcription completed successfully');
 
     return {
       transcript: transcription,
-      confidence: confidence,
-      success: true,
-      wordCount: transcription.split(' ').length
+      success: true
     };
 
   } catch (error) {
     console.error('Audio processing error:', error);
     return {
       transcript: '',
-      confidence: 0,
       success: false,
       error: error.message
     };
@@ -152,7 +146,8 @@ export const transcribeAudioBuffer = async (audioBuffer, options = {}) => {
       encoding: 'LINEAR16',
       languageCode: 'en-US',
       enableAutomaticPunctuation: true,
-      // Don't set sampleRateHertz by default - let it auto-detect
+      audioChannelCount: 2, // Handle stereo audio
+      enableSeparateRecognitionPerChannel: false, // Merge channels
     };
 
     const config = { ...defaultConfig, ...options };

@@ -7,7 +7,7 @@ const genai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
  */
 const generateSmartSummary = async (text, maxTokens = 1250) => {
   try {
-    const model = await genai.getGenerativeModel({ 
+    const model = genai.getGenerativeModel({ 
       model: "gemini-2.0-flash-exp",
       systemInstruction: `You are a smart note summarization AI. Create concise, actionable summaries of voice notes.
 
@@ -80,25 +80,16 @@ GUIDELINES:
 
 
 /**
- * Generate content from transcription using selected style from database
+ * Generate content from transcription using selected style name
  */
-const generateContentFromStyleSelected = async (audioTranscription, styleId) => {
+const generateContentFromStyleSelected = async (audioTranscription, styleName) => {
   try {
-    // Import database model
-    const { NoteStyle } = await import('../models/noteStyle.js');
-    
-    // Fetch style from database
-    const styleRecord = await NoteStyle.findById(styleId);
-    if (!styleRecord) {
-      throw new Error(`Style with ID ${styleId} not found`);
-    }
-    
     const model = genai.getGenerativeModel({
       model: "gemini-2.0-flash-exp",
       systemInstruction: `You are an AI note processor that transforms audio transcriptions into well-formatted notes based on specific style requirements.
 
 TASK:
-Transform the provided audio transcription according to the given style description.
+Transform the provided audio transcription according to the given style name.
 
 GUIDELINES:
 - Process the raw transcription into coherent, well-structured content
@@ -117,13 +108,12 @@ GUIDELINES:
 
     const prompt = `Please process this audio transcription according to the following style:
 
-STYLE: ${styleRecord.style_name}
-STYLE DESCRIPTION: ${styleRecord.style_description}
+STYLE: ${styleName}
 
 AUDIO TRANSCRIPTION:
 ${audioTranscription}
 
-Please transform this transcription into a well-formatted note following the style requirements above.`;
+Please transform this transcription into a well-formatted note following the "${styleName}" style.`;
 
     const result = await model.generateContent({
       contents: [{
@@ -140,4 +130,5 @@ Please transform this transcription into a well-formatted note following the sty
   }
 };
 
-export default {genai, generateSmartSummary, generateActionList, generateContentFromStyleSelected};
+export { generateSmartSummary, generateActionList, generateContentFromStyleSelected };
+export default genai;
