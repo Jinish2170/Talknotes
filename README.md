@@ -96,57 +96,6 @@ All endpoints are prefixed with `/api`
 | PUT | `/noteStyles/:id` | Update note style | Style data |
 | DELETE | `/noteStyles/:id` | Delete note style | - |
 
-## Usage Examples 💡
-
-### Processing an Audio Note
-
-```javascript
-// Upload and process audio file
-const formData = new FormData();
-formData.append('audioFile', audioBlob, 'recording.wav');
-formData.append('styleName', 'Meeting Notes');
-
-const response = await fetch('/api/user/processAudioNote', {
-  method: 'POST',
-  body: formData
-});
-
-const result = await response.json();
-console.log('Processed note:', result.data);
-```
-
-### Creating a Note Style
-
-```javascript
-// Create a new note style (Admin only)
-const noteStyle = {
-  style_name: "Technical Documentation",
-  style_description: "Format notes as structured technical documentation with headers and bullet points"
-};
-
-const response = await fetch('/api/admin/noteStyles', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(noteStyle)
-});
-```
-
-## Testing 🧪
-
-The project includes test files for various components:
-
-```bash
-# Test Gemini AI integration
-npm run test:gemini
-
-# Test speech-to-text functionality
-npm run test:speech
-
-# Test audio processing
-npm run test:audio
-```
 
 ## Project Structure 📁
 
