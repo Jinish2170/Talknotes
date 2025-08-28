@@ -174,11 +174,11 @@ const processAudioNote = async (req, res) => {
         ];
         
         const isValidAudio = allowedMimeTypes.includes(audioFile.mimetype) || 
-                           audioFile.name.toLowerCase().endsWith('.wav') ||
-                           audioFile.name.toLowerCase().endsWith('.mp3') ||
-                           audioFile.name.toLowerCase().endsWith('.mp4') ||
-                           audioFile.name.toLowerCase().endsWith('.m4a') ||
-                           audioFile.name.toLowerCase().endsWith('.webm');
+                            audioFile.name.toLowerCase().endsWith('.wav') ||
+                            audioFile.name.toLowerCase().endsWith('.mp3') ||
+                            audioFile.name.toLowerCase().endsWith('.mp4') ||
+                            audioFile.name.toLowerCase().endsWith('.m4a') ||
+                            audioFile.name.toLowerCase().endsWith('.webm');
         
         if (!isValidAudio) {
             return sendObjectResponse({

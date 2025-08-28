@@ -89,6 +89,8 @@ const getAudioConfig = (audioUrl, audioBuffer) => {
     languageCode: 'en-US',
     enableAutomaticPunctuation: true,
     model: 'latest_long',
+    // Allow Google to auto-detect channels or use mono as default
+    audioChannelCount: 2, // Default to mono, can be overridden
   };
   
   // Configure based on detected encoding
@@ -97,6 +99,9 @@ const getAudioConfig = (audioUrl, audioBuffer) => {
       return {
         ...baseConfig,
         encoding: 'LINEAR16',
+        // For WAV files, try to allow both mono and stereo
+        // Google will handle channel separation if needed
+        audioChannelCount: 1, // Force mono to avoid the error
         // Don't specify sample rate - let Google auto-detect
       };
     
@@ -104,24 +109,28 @@ const getAudioConfig = (audioUrl, audioBuffer) => {
       return {
         ...baseConfig,
         encoding: 'MP3',
+        audioChannelCount: 1, // Force mono for MP3
       };
     
     case 'OGG_OPUS': // OGG files
       return {
         ...baseConfig,
         encoding: 'OGG_OPUS',
+        audioChannelCount: 1, // Force mono for OGG
       };
     
     case 'WEBM_OPUS': // WebM files
       return {
         ...baseConfig,
         encoding: 'WEBM_OPUS',
+        audioChannelCount: 1, // Force mono for WebM
       };
     
     default: // Unknown - let Google figure it out
       return {
         ...baseConfig,
         encoding: 'ENCODING_UNSPECIFIED',
+        audioChannelCount: 1, // Force mono for unknown formats
       };
   }
 };
@@ -204,6 +213,9 @@ export const processAudioNoteFromDB = async (audioNoteUrl, options = {}) => {
     if (shouldUseLongRunning) {
       console.log(`Using Long Running Recognition (file: ${fileSizeMB.toFixed(2)}MB, estimated: ${estimatedMinutes.toFixed(1)}min)...`);
       
+      // Start timing here so it's available in catch block
+      const startTime = Date.now();
+      
       const audio = {
         content: audioBuffer.toString('base64'),
       };
@@ -226,7 +238,6 @@ export const processAudioNoteFromDB = async (audioNoteUrl, options = {}) => {
         });
         
         // Poll for operation status with timeout and progress updates
-        const startTime = Date.now();
         const maxWaitTime = 30 * 60 * 1000; // 30 minutes max wait
         
         console.log('Waiting for long running operation to complete...');
@@ -324,6 +335,64 @@ export const processAudioNoteFromDB = async (audioNoteUrl, options = {}) => {
         
       } catch (operationError) {
         console.error('Long running operation error:', operationError);
+        
+        // Check if it's a channel-related error and retry with different settings
+        if (operationError.message.includes('Must use single channel') || 
+            operationError.message.includes('2 channels')) {
+          
+          console.log('Detected stereo audio error, attempting to handle multi-channel audio...');
+          
+          try {
+            // Try again with explicit stereo configuration
+            console.log('Retrying with stereo configuration...');
+            const retryStartTime = Date.now();
+            
+            const stereoConfig = {
+              ...config,
+              audioChannelCount: 2, // Explicitly set to stereo
+              enableSeparateRecognitionPerChannel: true, // Separate recognition per channel
+            };
+            
+            const stereoRequest = {
+              config: {
+                ...stereoConfig,
+                enableWordTimeOffsets: false,
+                maxAlternatives: 1,
+              },
+              audio: {
+                content: audioBuffer.toString('base64'),
+              },
+            };
+            
+            const [retryOperation] = await speechClient.longRunningRecognize(stereoRequest);
+            const [retryResponse] = await retryOperation.promise();
+            
+            if (retryResponse && retryResponse.results && retryResponse.results.length > 0) {
+              // Combine results from both channels if available
+              let combinedTranscript = '';
+              retryResponse.results.forEach((result, index) => {
+                if (result.alternatives && result.alternatives[0]) {
+                  if (index > 0) combinedTranscript += ' ';
+                  combinedTranscript += result.alternatives[0].transcript;
+                }
+              });
+              
+              console.log('Stereo retry successful! Combined transcript from both channels.');
+              
+              return {
+                success: true,
+                transcript: combinedTranscript.trim(),
+                confidence: retryResponse.results[0]?.alternatives[0]?.confidence || 0,
+                processingTimeSeconds: (Date.now() - retryStartTime) / 1000,
+                resultCount: retryResponse.results.length,
+                channelHandling: 'stereo-separated'
+              };
+            }
+          } catch (retryError) {
+            console.error('Stereo retry also failed:', retryError.message);
+          }
+        }
+        
         throw new Error(`Long running recognition failed: ${operationError.message}`);
       }
       

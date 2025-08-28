@@ -4,6 +4,7 @@ import fs from "fs"
 
 // Configure Cloudinary silently
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    console.error("Missing Cloudinary environment variables. Please check your .env file.");
     throw new Error("Cloudinary configuration is incomplete");
 }
 
