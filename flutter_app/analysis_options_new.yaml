@@ -1,0 +1,40 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.gr.dart"
+    - "**/*.config.dart"
+    - build/**
+    - lib/generated/**
+  
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    # Enterprise-level rules
+    prefer_single_quotes: true
+    sort_constructors_first: true
+    sort_unnamed_constructors_first: true
+    avoid_redundant_argument_values: true
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+    prefer_final_locals: true
+    require_trailing_commas: true
+    unnecessary_lambdas: true
+    use_super_parameters: true
+    
+    # Custom rules for TalkNotes
+    avoid_print: false  # Allow prints in debug mode
+    avoid_unnecessary_containers: true
+    prefer_const_declarations: true
+    prefer_if_null_operators: true
+    sized_box_for_whitespace: true
+    use_build_context_synchronously: true
+    
+    # Disable some strict rules for development
+    deprecated_member_use: false

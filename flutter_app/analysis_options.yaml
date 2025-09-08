@@ -1,0 +1,28 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.gr.dart"
+    - "**/*.config.dart"
+    - build/**
+    - lib/generated/**
+
+linter:
+  rules:
+    # Disable some strict rules for development
+    public_member_api_docs: false
+    lines_longer_than_80_chars: false
+    always_use_package_imports: false
+    sort_pub_dependencies: false
+    prefer_int_literals: false
+    omit_local_variable_types: false
+    avoid_redundant_argument_values: false
+    directives_ordering: false
+    avoid_positional_boolean_parameters: false
+    
+    # Keep important rules
+    prefer_const_constructors: true
+    avoid_print: false
+    use_build_context_synchronously: true
