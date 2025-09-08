@@ -1,31 +1,31 @@
 class AppConstants {
   // API Configuration - Matching your backend exactly
-  static const String baseUrl = 'http://localhost:5000'; // Your backend URL
+  static const String baseUrl = 'http://localhost:3000'; // Your backend URL
   static const String apiVersion = 'v1';
   static const String baseApiUrl = '$baseUrl/api';
   
   // API Endpoints - Exactly matching your backend routes
   // User Endpoints
-  static const String userLogin = '/user/loginUser';
-  static const String userRegister = '/user/registerUser';
-  static const String userProfile = '/user/profile';
-  static const String userVerifyOtp = '/user/verify-otp';
-  static const String userResendOtp = '/user/resend-otp';
-  static const String userCreateNote = '/user/createNote';
-  static const String userUpdateNote = '/user/updateNote';
-  static const String userDeleteNote = '/user/deleteNote';
-  static const String userGetNotes = '/user/getNotes';
-  static const String userSaveAudioNote = '/user/saveAudioNote';
-  static const String userProcessAudioNote = '/user/processAudioNote'; // Key endpoint
-  static const String userGetNoteStyles = '/user/noteStyles';
+  static const String userLogin = '/api/user/loginUser';
+  static const String userRegister = '/api/user/registerUser';
+  static const String userProfile = '/api/user/profile';
+  static const String userVerifyOtp = '/api/user/verify-otp';
+  static const String userResendOtp = '/api/user/resend-otp';
+  static const String userCreateNote = '/api/user/createNote';
+  static const String userUpdateNote = '/api/user/updateNote';
+  static const String userDeleteNote = '/api/user/deleteNote';
+  static const String userGetNotes = '/api/user/getNotes';
+  static const String userSaveAudioNote = '/api/user/saveAudioNote';
+  static const String userProcessAudioNote = '/api/user/processAudioNote'; // Key endpoint
+  static const String userGetNoteStyles = '/api/user/noteStyles';
   
   // Admin Endpoints
-  static const String adminCreateNoteStyle = '/admin/noteStyles';
-  static const String adminUpdateNoteStyle = '/admin/noteStyles';
-  static const String adminDeleteNoteStyle = '/admin/noteStyles';
-  static const String adminGetNoteStyles = '/admin/noteStyles';
-  static const String adminLogin = '/admin/adminLogin';
-  static const String adminUserDeactivate = '/admin/userDeactivate';
+  static const String adminCreateNoteStyle = '/api/admin/noteStyles';
+  static const String adminUpdateNoteStyle = '/api/admin/noteStyles';
+  static const String adminDeleteNoteStyle = '/api/admin/noteStyles';
+  static const String adminGetNoteStyles = '/api/admin/noteStyles';
+  static const String adminLogin = '/api/admin/adminLogin';
+  static const String adminUserDeactivate = '/api/admin/userDeactivate';
   
   // Storage Keys
   static const String accessTokenKey = 'access_token';

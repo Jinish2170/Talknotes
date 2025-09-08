@@ -58,7 +58,7 @@ app.use((req, res, next) => {
 });
 
 const corsOption = {
-  origin: [process.env.FRONTEND_BASE_URL],
+  origin: true, // Allow all origins in development
   methods: "GET,POST,HEAD,OPTIONS,PUT,PATCH,DELETE",
   credentials: true,
 };

@@ -11,10 +11,15 @@ class AuthService {
   /// Backend returns: { RESULT: { success, message }, MESSAGE, STATUS, IS_TOKEN_EXPIRE }
   Future<ApiResponse<AuthResponse>> registerUser(RegisterRequest request) async {
     try {
+      print('🚀 Attempting registration to: ${AppConstants.userRegister}');
+      print('📊 Request data: ${request.toJson()}');
+      
       final response = await _dio.post(
         AppConstants.userRegister,
         data: request.toJson(),
       );
+
+      print('✅ Response received: ${response.data}');
 
       // Parse the response according to backend format
       final apiResponse = ApiResponse<AuthResponse>.fromJson(
@@ -24,8 +29,14 @@ class AuthService {
 
       return apiResponse;
     } on DioException catch (e) {
+      print('❌ DioException occurred:');
+      print('   Type: ${e.type}');
+      print('   Message: ${e.message}');
+      print('   Response: ${e.response?.data}');
+      print('   Status Code: ${e.response?.statusCode}');
       throw _handleDioError(e);
     } catch (e) {
+      print('❌ General Exception: $e');
       throw Exception('Registration failed: ${e.toString()}');
     }
   }
@@ -48,8 +59,14 @@ class AuthService {
 
       return apiResponse;
     } on DioException catch (e) {
+      print('❌ Login DioException occurred:');
+      print('   Type: ${e.type}');
+      print('   Message: ${e.message}');
+      print('   Response: ${e.response?.data}');
+      print('   Status Code: ${e.response?.statusCode}');
       throw _handleDioError(e);
     } catch (e) {
+      print('❌ Login General Exception: $e');
       throw Exception('Login failed: ${e.toString()}');
     }
   }

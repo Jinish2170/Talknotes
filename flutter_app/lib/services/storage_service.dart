@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../constants/app_constants.dart';
+import '../models/user_model.dart';
 
 class StorageService {
   static SharedPreferences? _prefs;
@@ -38,20 +39,36 @@ class StorageService {
   }
   
   // User Data Management
-  static Future<void> saveUserData(Map<String, dynamic> userData) async {
-    await _secureBox?.put(AppConstants.userDataKey, userData);
+  static Future<void> saveUserData(User user) async {
+    await _secureBox?.put(AppConstants.userDataKey, user.toJson());
   }
   
-  static Future<Map<String, dynamic>?> getUserData() async {
+  static Future<User?> getUserData() async {
     final data = _secureBox?.get(AppConstants.userDataKey);
     if (data is Map) {
-      return Map<String, dynamic>.from(data);
+      try {
+        return User.fromJson(Map<String, dynamic>.from(data));
+      } catch (e) {
+        return null;
+      }
     }
     return null;
   }
   
   static Future<void> clearUserData() async {
     await _secureBox?.delete(AppConstants.userDataKey);
+  }
+
+  // Authentication Status
+  static Future<void> setLoggedIn(bool loggedIn) async {
+    await _prefs?.setBool('is_logged_in', loggedIn);
+  }
+
+  static Future<bool> isLoggedIn() async {
+    final isLoggedIn = _prefs?.getBool('is_logged_in') ?? false;
+    final token = await getAccessToken();
+    // User is logged in if both flag is true and token exists
+    return isLoggedIn && token != null && token.isNotEmpty;
   }
   
   // App Settings
@@ -111,11 +128,5 @@ class StorageService {
   static Future<void> clear() async {
     await _prefs?.clear();
     await _secureBox?.clear();
-  }
-  
-  // Check if user is logged in
-  static Future<bool> isLoggedIn() async {
-    final token = await getAccessToken();
-    return token != null && token.isNotEmpty;
   }
 }

@@ -4,7 +4,7 @@ class ApiEndpoints {
   // Base Configuration
   static const String production = 'https://api.talknotes.com';
   static const String staging = 'https://staging-api.talknotes.com';
-  static const String development = 'http://localhost:5000';
+  static const String development = 'http://10.0.2.2:3000'; // Android emulator localhost
   
   // Current Environment
   static const String currentBaseUrl = development; // Change for different environments
@@ -19,7 +19,7 @@ class ApiEndpoints {
   static String get userUpdateNote => '$currentBaseUrl${AppConstants.userUpdateNote}';
   static String get userDeleteNote => '$currentBaseUrl${AppConstants.userDeleteNote}';
   static String get userGetNotes => '$currentBaseUrl${AppConstants.userGetNotes}';
-  static String get userGetNote => '$currentBaseUrl${AppConstants.userGetNote}';
+  static String get userSaveAudioNote => '$currentBaseUrl${AppConstants.userSaveAudioNote}';
   static String get userProcessAudioNote => '$currentBaseUrl${AppConstants.userProcessAudioNote}';
   static String get userGetNoteStyles => '$currentBaseUrl${AppConstants.userGetNoteStyles}';
   
@@ -27,13 +27,14 @@ class ApiEndpoints {
   static String get adminCreateNoteStyle => '$currentBaseUrl${AppConstants.adminCreateNoteStyle}';
   static String get adminUpdateNoteStyle => '$currentBaseUrl${AppConstants.adminUpdateNoteStyle}';
   static String get adminDeleteNoteStyle => '$currentBaseUrl${AppConstants.adminDeleteNoteStyle}';
-  static String get adminGetAllUsers => '$currentBaseUrl${AppConstants.adminGetAllUsers}';
-  static String get adminGetAllNotes => '$currentBaseUrl${AppConstants.adminGetAllNotes}';
+  static String get adminGetNoteStyles => '$currentBaseUrl${AppConstants.adminGetNoteStyles}';
+  static String get adminLogin => '$currentBaseUrl${AppConstants.adminLogin}';
+  static String get adminUserDeactivate => '$currentBaseUrl${AppConstants.adminUserDeactivate}';
   
   // Dynamic URLs with parameters
-  static String getUserNoteById(String noteId) => '$currentBaseUrl${AppConstants.userGetNote}/$noteId';
   static String updateNoteById(String noteId) => '$currentBaseUrl${AppConstants.userUpdateNote}/$noteId';
   static String deleteNoteById(String noteId) => '$currentBaseUrl${AppConstants.userDeleteNote}/$noteId';
   static String updateNoteStyleById(String styleId) => '$currentBaseUrl${AppConstants.adminUpdateNoteStyle}/$styleId';
   static String deleteNoteStyleById(String styleId) => '$currentBaseUrl${AppConstants.adminDeleteNoteStyle}/$styleId';
+  static String deactivateUserById(String userId) => '$currentBaseUrl${AppConstants.adminUserDeactivate}/$userId';
 }
