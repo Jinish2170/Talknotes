@@ -6,10 +6,13 @@ import 'services/storage_service.dart';
 import 'configs/network_config.dart';
 import 'core/service_locator.dart';
 import 'providers/auth_provider.dart';
+import 'providers/recording_provider.dart';
+import 'providers/notes_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
+import 'screens/notes/notes_list_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +39,12 @@ class TalkNotesApp extends StatelessWidget {
         ChangeNotifierProvider<AuthProvider>(
           create: (_) => getIt<AuthProvider>(),
         ),
+        ChangeNotifierProvider<RecordingProvider>(
+          create: (_) => getIt<RecordingProvider>(),
+        ),
+        ChangeNotifierProvider<NotesProvider>(
+          create: (_) => getIt<NotesProvider>(),
+        ),
         // Add more providers here as needed
       ],
       child: MaterialApp(
@@ -50,6 +59,7 @@ class TalkNotesApp extends StatelessWidget {
           '/register': (context) => const RegisterScreen(),
           '/home': (context) => const HomeScreen(),
           '/onboarding': (context) => const OnboardingScreen(),
+          '/notes': (context) => const NotesListScreen(),
         },
       ),
     );

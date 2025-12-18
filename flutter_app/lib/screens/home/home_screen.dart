@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../constants/app_theme.dart';
 import '../../constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
+import '../recording/recording_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -141,12 +142,23 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 32),
                 
                 // Recent Notes Section
-                Text(
-                  'Recent Notes',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppColors.grey900,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Recent Notes',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: AppColors.grey900,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/notes');
+                      },
+                      child: const Text('View All'),
+                    ),
+                  ],
                 ),
                 
                 const SizedBox(height: 16),
@@ -207,12 +219,9 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _startRecording(BuildContext context) {
-    // TODO: Implement voice recording
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Voice recording feature coming soon!'),
-        backgroundColor: AppColors.primary,
-      ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RecordingScreen()),
     );
   }
 
