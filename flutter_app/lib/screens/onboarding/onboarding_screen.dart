@@ -24,7 +24,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     OnboardingPage(
       title: 'Quick & Simple',
-      description: 'Record up to 1 minute of audio and get instant transcription',
+      description:
+          'Record up to 1 minute of audio and get instant transcription',
       icon: Icons.timer,
       color: AppColors.secondary,
     ),
@@ -40,9 +41,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.backgroundLight,
-        ),
+        decoration: const BoxDecoration(color: AppColors.backgroundLight),
         child: SafeArea(
           child: Column(
             children: [
@@ -55,15 +54,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPressed: _completeOnboarding,
                     child: const Text(
                       'Skip',
-                      style: TextStyle(
-                        color: AppColors.grey500,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: AppColors.grey500, fontSize: 16),
                     ),
                   ),
                 ),
               ),
-              
+
               // Page view
               Expanded(
                 flex: 3,
@@ -80,7 +76,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   },
                 ),
               ),
-              
+
               // Page indicator
               Expanded(
                 flex: 1,
@@ -94,9 +90,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         (index) => _buildDot(index),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Navigation buttons
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -121,7 +117,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   ),
                                 )
                               : const SizedBox(width: 80),
-                          
+
                           // Next/Get Started button
                           ElevatedButton(
                             onPressed: () {
@@ -158,7 +154,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
                   ],
                 ),
@@ -184,15 +180,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               color: page.color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              page.icon,
-              size: 64,
-              color: page.color,
-            ),
+            child: Icon(page.icon, size: 64, color: page.color),
           ),
-          
+
           const SizedBox(height: 40),
-          
+
           // Title
           Text(
             page.title,
@@ -202,9 +194,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
             textAlign: TextAlign.center,
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Description
           Text(
             page.description,
@@ -236,9 +228,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _completeOnboarding() {
     StorageService.setOnboardingCompleted(true);
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
   }
 
   @override

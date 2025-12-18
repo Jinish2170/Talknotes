@@ -38,22 +38,22 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 60),
-                
+
                 // Header
                 _buildHeader(),
-                
+
                 const SizedBox(height: 40),
-                
+
                 // Login Form
                 _buildLoginForm(),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Login Button
                 _buildLoginButton(),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Register Link
                 _buildRegisterLink(),
               ],
@@ -65,16 +65,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildHeader() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          Icons.waving_hand,
-          size: 32,
-          color: AppColors.primary,
-        ),
-        const SizedBox(height: 16),
-        const Text(
+        Icon(Icons.waving_hand, size: 32, color: AppColors.primary),
+        SizedBox(height: 16),
+        Text(
           'Welcome back',
           style: TextStyle(
             fontSize: 28,
@@ -82,13 +78,10 @@ class _LoginScreenState extends State<LoginScreen> {
             color: AppColors.black,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Text(
           'Sign in to continue your voice note journey',
-          style: TextStyle(
-            fontSize: 16,
-            color: AppColors.grey600,
-          ),
+          style: TextStyle(fontSize: 16, color: AppColors.grey600),
         ),
       ],
     );
@@ -107,7 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
             hintText: 'Enter your email',
             prefixIcon: const Icon(Icons.email_outlined),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+              borderRadius: BorderRadius.circular(
+                AppConstants.defaultBorderRadius,
+              ),
             ),
           ),
           validator: (value) {
@@ -120,9 +115,9 @@ class _LoginScreenState extends State<LoginScreen> {
             return null;
           },
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Password Field
         TextFormField(
           controller: _passwordController,
@@ -143,7 +138,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+              borderRadius: BorderRadius.circular(
+                AppConstants.defaultBorderRadius,
+              ),
             ),
           ),
           validator: (value) {
@@ -176,13 +173,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 child: Text(
                   authProvider.errorMessage!,
-                  style: TextStyle(
-                    color: Colors.red.shade700,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.red.shade700, fontSize: 14),
                 ),
               ),
-            
+
             // Login Button
             SizedBox(
               width: double.infinity,
@@ -193,7 +187,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+                    borderRadius: BorderRadius.circular(
+                      AppConstants.defaultBorderRadius,
+                    ),
                   ),
                   elevation: 0,
                 ),
@@ -226,18 +222,13 @@ class _LoginScreenState extends State<LoginScreen> {
       child: TextButton(
         onPressed: () {
           Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const RegisterScreen(),
-            ),
+            MaterialPageRoute(builder: (context) => const RegisterScreen()),
           );
         },
         child: RichText(
-          text: TextSpan(
+          text: const TextSpan(
             text: "Don't have an account? ",
-            style: TextStyle(
-              color: AppColors.grey600,
-              fontSize: 16,
-            ),
+            style: TextStyle(color: AppColors.grey600, fontSize: 16),
             children: [
               TextSpan(
                 text: 'Sign Up',
@@ -256,7 +247,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     // Clear any previous errors
     context.read<AuthProvider>().clearError();
-    
+
     if (!_formKey.currentState!.validate()) {
       return;
     }

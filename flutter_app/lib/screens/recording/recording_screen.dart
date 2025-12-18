@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:record/record.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../constants/app_theme.dart';
 import '../../constants/app_constants.dart';
@@ -17,52 +15,53 @@ class RecordingScreen extends StatefulWidget {
 
 class _RecordingScreenState extends State<RecordingScreen>
     with TickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late AnimationController _waveController;
-  late Animation<double> _pulseAnimation;
-  late Animation<double> _scaleAnimation;
+  // late AnimationController _pulseController;
+  // late AnimationController _waveController;
+  // late Animation<double> _pulseAnimation;
+  // late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    
-    // Initialize animations
-    _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-    
-    _waveController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-    
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _waveController,
-      curve: Curves.elasticOut,
-    ));
+
+    // Initialize animations - commented out for testing
+    // _pulseController = AnimationController(
+    //   duration: const Duration(milliseconds: 1500),
+    //   vsync: this,
+    // );
+
+    // _waveController = AnimationController(
+    //   duration: const Duration(milliseconds: 2000),
+    //   vsync: this,
+    // );
+
+    // _pulseAnimation = Tween<double>(
+    //   begin: 1.0,
+    //   end: 1.2,
+    // ).animate(CurvedAnimation(
+    //   parent: _pulseController,
+    //   curve: Curves.easeInOut,
+    // ));
+
+    // _scaleAnimation = Tween<double>(
+    //   begin: 0.8,
+    //   end: 1.0,
+    // ).animate(CurvedAnimation(
+    //   parent: _waveController,
+    //   curve: Curves.elasticOut,
+    // ));
   }
 
   @override
   void dispose() {
-    _pulseController.dispose();
-    _waveController.dispose();
+    // _pulseController.dispose();
+    // _waveController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🏗️ RecordingScreen build method called');
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
@@ -76,6 +75,9 @@ class _RecordingScreenState extends State<RecordingScreen>
       ),
       body: Consumer<RecordingProvider>(
         builder: (context, recordingProvider, child) {
+          debugPrint(
+            '🏗️ Consumer builder called - RecordingProvider state: ${recordingProvider.recordingState}',
+          );
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -100,116 +102,119 @@ class _RecordingScreenState extends State<RecordingScreen>
                       children: [
                         Text(
                           _getStatusText(recordingProvider.recordingState),
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            color: _getStatusColor(recordingProvider.recordingState),
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                color: _getStatusColor(
+                                  recordingProvider.recordingState,
+                                ),
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           _getSubtitleText(recordingProvider.recordingState),
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.grey600,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: AppColors.grey600),
                           textAlign: TextAlign.center,
                         ),
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Timer Display
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.grey100,
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Text(
                       _formatDuration(recordingProvider.recordingDuration),
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: AppColors.grey800,
-                        fontWeight: FontWeight.w600,
-                        fontFeatures: [const FontFeature.tabularFigures()],
-                      ),
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
+                            color: AppColors.grey800,
+                            fontWeight: FontWeight.w600,
+                            fontFeatures: [const FontFeature.tabularFigures()],
+                          ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Time Remaining
                   Text(
                     'Time remaining: ${_formatDuration(const Duration(seconds: 60) - recordingProvider.recordingDuration)}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.grey600,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: AppColors.grey600),
                   ),
-                  
+
                   const Spacer(),
-                  
+
                   // Recording Button
                   Center(
-                    child: GestureDetector(
-                      onTap: () => _handleRecordingAction(recordingProvider),
-                      child: AnimatedBuilder(
-                        animation: recordingProvider.isRecording ? _pulseController : _waveController,
-                        builder: (context, child) {
-                          if (recordingProvider.isRecording) {
-                            _pulseController.repeat(reverse: true);
-                          } else {
-                            _pulseController.stop();
-                          }
-                          
-                          return Transform.scale(
-                            scale: recordingProvider.isRecording 
-                                ? _pulseAnimation.value 
-                                : _scaleAnimation.value,
-                            child: Container(
-                              width: 200,
-                              height: 200,
-                              decoration: BoxDecoration(
-                                gradient: recordingProvider.isRecording
-                                    ? AppColors.recordingGradient
-                                    : AppColors.primaryGradient,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: recordingProvider.isRecording
-                                        ? AppColors.recordingActive.withValues(alpha: 0.4)
-                                        : AppColors.primary.withValues(alpha: 0.3),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 10),
-                                  ),
-                                ],
+                    child: Column(
+                      children: [
+                        // Test button
+                        ElevatedButton(
+                          onPressed: () {
+                            debugPrint('🧪 TEST BUTTON PRESSED!');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Test button works!'),
                               ),
-                              child: Icon(
-                                recordingProvider.isRecording ? Icons.stop : Icons.mic,
-                                size: 80,
-                                color: Colors.white,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                            );
+                          },
+                          child: const Text('TEST'),
+                        ),
+                        const SizedBox(height: 20),
+                        // Main recording button
+                        ElevatedButton(
+                          onPressed: () async {
+                            debugPrint(
+                              '🖱️ ElevatedButton onPressed triggered!',
+                            );
+                            await _handleRecordingAction(recordingProvider);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(24),
+                            backgroundColor: recordingProvider.isRecording
+                                ? Colors.red
+                                : Theme.of(context).colorScheme.primary,
+                          ),
+                          child: Icon(
+                            recordingProvider.isRecording
+                                ? Icons.stop
+                                : Icons.mic,
+                            size: 64,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Action Text
                   Text(
-                    recordingProvider.isRecording 
-                        ? 'Tap to stop recording' 
+                    recordingProvider.isRecording
+                        ? 'Tap to stop recording'
                         : 'Tap to start recording',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: AppColors.grey700,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Warning for 1-minute limit
                   if (!recordingProvider.isRecording)
                     Container(
@@ -223,7 +228,7 @@ class _RecordingScreenState extends State<RecordingScreen>
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.access_time,
                             color: AppColors.warning,
                             size: 20,
@@ -232,15 +237,14 @@ class _RecordingScreenState extends State<RecordingScreen>
                           Expanded(
                             child: Text(
                               'Recording is limited to 1 minute. The recording will automatically stop at 60 seconds.',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.warning,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: AppColors.warning),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  
+
                   const Spacer(),
                 ],
               ),
@@ -298,19 +302,42 @@ class _RecordingScreenState extends State<RecordingScreen>
   }
 
   Future<void> _handleRecordingAction(RecordingProvider provider) async {
+    debugPrint(
+      '🎯 Recording button pressed! Current state: ${provider.recordingState}',
+    );
+    debugPrint('🎯 Provider isRecording: ${provider.isRecording}');
+
     if (provider.isRecording) {
+      debugPrint('🎯 Stopping recording...');
       // Stop recording
       await provider.stopRecording();
       if (mounted) {
         _showRecordingCompleteDialog();
       }
     } else {
+      debugPrint('🎯 Starting recording...');
       // Start recording
       final hasPermission = await _checkMicrophonePermission();
+      debugPrint('🎯 Permission check result: $hasPermission');
+
       if (hasPermission) {
-        await provider.startRecording();
-        _waveController.forward();
+        try {
+          await provider.startRecording();
+          // _waveController.forward();
+          debugPrint('🎯 Recording started successfully');
+        } catch (e) {
+          debugPrint('🎯 Error starting recording: $e');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error starting recording: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
       } else {
+        debugPrint('🎯 Permission denied, showing dialog');
         if (mounted) {
           _showPermissionDialog();
         }
@@ -323,12 +350,12 @@ class _RecordingScreenState extends State<RecordingScreen>
     if (status.isGranted) {
       return true;
     }
-    
+
     if (status.isDenied) {
       final result = await Permission.microphone.request();
       return result.isGranted;
     }
-    
+
     return false;
   }
 
@@ -362,7 +389,9 @@ class _RecordingScreenState extends State<RecordingScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Recording Complete'),
-        content: const Text('Your voice note has been recorded successfully. What would you like to do next?'),
+        content: const Text(
+          'Your voice note has been recorded successfully. What would you like to do next?',
+        ),
         actions: [
           TextButton(
             onPressed: () {

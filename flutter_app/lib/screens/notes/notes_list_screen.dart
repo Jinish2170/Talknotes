@@ -4,7 +4,9 @@ import '../../constants/app_theme.dart';
 import '../../constants/app_constants.dart';
 import '../../providers/notes_provider.dart';
 import '../../models/note.dart';
+import '../../widgets/audio_player_widget.dart';
 import '../recording/recording_screen.dart';
+import 'note_detail_screen.dart';
 
 class NotesListScreen extends StatefulWidget {
   const NotesListScreen({super.key});
@@ -44,9 +46,7 @@ class _NotesListScreenState extends State<NotesListScreen> {
         builder: (context, notesProvider, child) {
           if (notesProvider.isLoading) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primary,
-              ),
+              child: CircularProgressIndicator(color: AppColors.primary),
             );
           }
 
@@ -91,11 +91,11 @@ class _NotesListScreenState extends State<NotesListScreen> {
             Container(
               width: 120,
               height: 120,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.grey100,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.note_add_outlined,
                 size: 60,
                 color: AppColors.grey400,
@@ -112,9 +112,9 @@ class _NotesListScreenState extends State<NotesListScreen> {
             const SizedBox(height: 12),
             Text(
               'Start recording your first voice note to see it here',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.grey500,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.grey500),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -122,7 +122,9 @@ class _NotesListScreenState extends State<NotesListScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const RecordingScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const RecordingScreen(),
+                  ),
                 );
               },
               icon: const Icon(Icons.mic),
@@ -130,7 +132,10 @@ class _NotesListScreenState extends State<NotesListScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
@@ -173,7 +178,7 @@ class _NotesListScreenState extends State<NotesListScreen> {
                         color: AppColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.note_outlined,
                         color: AppColors.primary,
                         size: 20,
@@ -185,20 +190,22 @@ class _NotesListScreenState extends State<NotesListScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            note.title.isNotEmpty ? note.title : 'Voice Note ${index + 1}',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: AppColors.grey900,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            note.title.isNotEmpty
+                                ? note.title
+                                : 'Voice Note ${index + 1}',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: AppColors.grey900,
+                                  fontWeight: FontWeight.w600,
+                                ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
                           Text(
                             _formatDate(note.createdAt),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.grey500,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppColors.grey500),
                           ),
                         ],
                       ),
@@ -232,7 +239,10 @@ class _NotesListScreenState extends State<NotesListScreen> {
                             children: [
                               Icon(Icons.delete, size: 18, color: Colors.red),
                               SizedBox(width: 8),
-                              Text('Delete', style: TextStyle(color: Colors.red)),
+                              Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.red),
+                              ),
                             ],
                           ),
                         ),
@@ -240,43 +250,62 @@ class _NotesListScreenState extends State<NotesListScreen> {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 12),
-                
-                // Content preview
+
+                // Content preview and audio player
                 if (note.transcription.isNotEmpty)
-                  Text(
-                    note.transcription,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.grey700,
-                      height: 1.4,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        note.transcription,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.grey700,
+                          height: 1.4,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 12),
+                      // Audio Player
+                      AudioPlayerWidget(
+                        audioPath: note.audioPath,
+                        title: note.title.isNotEmpty
+                            ? note.title
+                            : 'Voice Note ${index + 1}',
+                        compact: true,
+                      ),
+                    ],
+                  )
+                else
+                  // Just audio player if no transcription
+                  AudioPlayerWidget(
+                    audioPath: note.audioPath,
+                    title: note.title.isNotEmpty
+                        ? note.title
+                        : 'Voice Note ${index + 1}',
+                    compact: true,
                   ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Footer
                 Row(
                   children: [
-                    Icon(
-                      Icons.access_time,
-                      size: 16,
-                      color: AppColors.grey400,
-                    ),
+                    const Icon(Icons.access_time, size: 16, color: AppColors.grey400),
                     const SizedBox(width: 4),
                     Text(
                       _formatDuration(note.duration),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.grey500,
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: AppColors.grey500),
                     ),
                     const Spacer(),
                     if (note.isProcessing)
                       Row(
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 12,
                             height: 12,
                             child: CircularProgressIndicator(
@@ -287,14 +316,13 @@ class _NotesListScreenState extends State<NotesListScreen> {
                           const SizedBox(width: 6),
                           Text(
                             'Processing...',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.warning,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppColors.warning),
                           ),
                         ],
                       )
                     else
-                      Icon(
+                      const Icon(
                         Icons.check_circle,
                         size: 16,
                         color: AppColors.success,
@@ -312,7 +340,7 @@ class _NotesListScreenState extends State<NotesListScreen> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays == 0) {
       return 'Today ${_formatTime(date)}';
     } else if (difference.inDays == 1) {
@@ -333,16 +361,13 @@ class _NotesListScreenState extends State<NotesListScreen> {
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes;
     final seconds = duration.inSeconds.remainder(60);
-    return '${minutes}:${seconds.toString().padLeft(2, '0')}';
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 
   void _openNoteDetail(Note note) {
-    // TODO: Navigate to note detail screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Opening note: ${note.title.isNotEmpty ? note.title : 'Untitled'}'),
-        backgroundColor: AppColors.primary,
-      ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => NoteDetailScreen(note: note)),
     );
   }
 
@@ -377,7 +402,9 @@ class _NotesListScreenState extends State<NotesListScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Note'),
-        content: const Text('Are you sure you want to delete this note? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete this note? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -386,7 +413,10 @@ class _NotesListScreenState extends State<NotesListScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Provider.of<NotesProvider>(context, listen: false).deleteNote(note.id);
+              Provider.of<NotesProvider>(
+                context,
+                listen: false,
+              ).deleteNote(note.id);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Note deleted successfully'),
@@ -394,10 +424,7 @@ class _NotesListScreenState extends State<NotesListScreen> {
                 ),
               );
             },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

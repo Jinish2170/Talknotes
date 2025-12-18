@@ -8,6 +8,10 @@ class Note {
   final DateTime updatedAt;
   final bool isProcessing;
   final List<String> tags;
+  final String? noteStyle;
+  final String? textNote;
+  final String? aiNote;
+  final String? audioPublicId;
 
   Note({
     required this.id,
@@ -19,6 +23,10 @@ class Note {
     required this.updatedAt,
     this.isProcessing = false,
     this.tags = const [],
+    this.noteStyle,
+    this.textNote,
+    this.aiNote,
+    this.audioPublicId,
   });
 
   // Create a copy of the note with updated fields
@@ -32,6 +40,10 @@ class Note {
     DateTime? updatedAt,
     bool? isProcessing,
     List<String>? tags,
+    String? noteStyle,
+    String? textNote,
+    String? aiNote,
+    String? audioPublicId,
   }) {
     return Note(
       id: id ?? this.id,
@@ -43,6 +55,10 @@ class Note {
       updatedAt: updatedAt ?? this.updatedAt,
       isProcessing: isProcessing ?? this.isProcessing,
       tags: tags ?? this.tags,
+      noteStyle: noteStyle ?? this.noteStyle,
+      textNote: textNote ?? this.textNote,
+      aiNote: aiNote ?? this.aiNote,
+      audioPublicId: audioPublicId ?? this.audioPublicId,
     );
   }
 
@@ -58,10 +74,14 @@ class Note {
       'updatedAt': updatedAt.toIso8601String(),
       'isProcessing': isProcessing,
       'tags': tags,
+      'noteStyle': noteStyle,
+      'textNote': textNote,
+      'aiNote': aiNote,
+      'audioPublicId': audioPublicId,
     };
   }
 
-  // Create from JSON
+  // Create from JSON (local storage format)
   factory Note.fromJson(Map<String, dynamic> json) {
     return Note(
       id: json['id'] ?? '',
@@ -73,7 +93,45 @@ class Note {
       updatedAt: DateTime.parse(json['updatedAt']),
       isProcessing: json['isProcessing'] ?? false,
       tags: List<String>.from(json['tags'] ?? []),
+      noteStyle: json['noteStyle'],
+      textNote: json['textNote'],
+      aiNote: json['aiNote'],
+      audioPublicId: json['audioPublicId'],
     );
+  }
+
+  // Create from backend JSON format
+  factory Note.fromBackendJson(Map<String, dynamic> json) {
+    return Note(
+      id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
+      title: json['note_title'] ?? json['title'] ?? '',
+      transcription: json['audio_transcription'] ?? json['transcription'] ?? '',
+      audioPath: json['audio_url'] ?? json['audioPath'] ?? '',
+      duration: Duration(seconds: json['duration'] ?? 0),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.now(),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : DateTime.now(),
+      isProcessing: json['isProcessing'] ?? false,
+      tags: List<String>.from(json['tags'] ?? []),
+      noteStyle: json['note_style'],
+      textNote: json['text_note'],
+      aiNote: json['ai_note'],
+      audioPublicId: json['audio_public_id'],
+    );
+  }
+
+  // Convert to backend format for API calls
+  Map<String, dynamic> toBackendJson() {
+    return {
+      'note_title': title,
+      'note_style': noteStyle ?? 'default',
+      'text_note': textNote ?? '',
+      'audio_transcription': transcription,
+      'ai_note': aiNote ?? '',
+    };
   }
 
   // Generate a preview of the transcription
@@ -91,7 +149,7 @@ class Note {
   String get formattedDuration {
     final minutes = duration.inMinutes;
     final seconds = duration.inSeconds.remainder(60);
-    return '${minutes}:${seconds.toString().padLeft(2, '0')}';
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 
   @override

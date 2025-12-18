@@ -13,19 +13,25 @@ import 'screens/auth/register_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/notes/notes_list_screen.dart';
+import 'screens/recording/recording_screen.dart';
+import 'screens/profile/profile_screen.dart';
+import 'screens/search/search_screen.dart';
+import 'screens/settings/settings_screen.dart';
+import 'screens/help/help_screen.dart';
+import 'screens/statistics/statistics_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize storage services
   await StorageService.init();
-  
+
   // Initialize network configuration
   NetworkConfig.dio; // This initializes the Dio instance
-  
+
   // Initialize service locator
   await ServiceLocator.init();
-  
+
   runApp(const TalkNotesApp());
 }
 
@@ -60,6 +66,12 @@ class TalkNotesApp extends StatelessWidget {
           '/home': (context) => const HomeScreen(),
           '/onboarding': (context) => const OnboardingScreen(),
           '/notes': (context) => const NotesListScreen(),
+          '/recording': (context) => const RecordingScreen(),
+          '/profile': (context) => const ProfileScreen(),
+          '/search': (context) => const SearchScreen(),
+          '/settings': (context) => const SettingsScreen(),
+          '/help': (context) => const HelpScreen(),
+          '/statistics': (context) => const StatisticsScreen(),
         },
       ),
     );
@@ -73,7 +85,7 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> 
+class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
@@ -86,25 +98,19 @@ class _SplashScreenState extends State<SplashScreen>
       duration: AppConstants.slowAnimation,
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    ));
-    
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+
     _scaleAnimation = Tween<double>(
       begin: 0.8,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticOut,
-    ));
-    
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+
     _controller.forward();
-    
+
     // Navigate after delay
     Future.delayed(const Duration(seconds: 3), () {
       _navigateToNext();
@@ -119,25 +125,29 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _navigateToNext() async {
     final isLoggedIn = await StorageService.isLoggedIn();
+
+    // Force mark onboarding as completed for testing
+    await StorageService.setOnboardingCompleted(true);
     final isOnboardingCompleted = StorageService.isOnboardingCompleted();
-    
+
+    debugPrint(
+      '🚦 Navigation Logic: isLoggedIn=$isLoggedIn, isOnboardingCompleted=$isOnboardingCompleted',
+    );
+
     if (!mounted) return;
-    
+
     if (isLoggedIn) {
-      // Navigate to home screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    } else if (isOnboardingCompleted) {
-      // Navigate to login screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      // User is logged in - go directly to home screen
+      debugPrint('🏠 Navigating to HomeScreen (user is logged in)');
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
     } else {
-      // Navigate to onboarding screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const OnboardingScreen()),
-      );
+      // User not logged in - go to login screen (skip onboarding for now)
+      debugPrint('� Navigating to LoginScreen (user not logged in)');
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
     }
   }
 
@@ -145,9 +155,7 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.primaryGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
         child: Center(
           child: AnimatedBuilder(
             animation: _controller,
@@ -173,9 +181,9 @@ class _SplashScreenState extends State<SplashScreen>
                           color: Colors.white,
                         ),
                       ),
-                      
+
                       const SizedBox(height: 32),
-                      
+
                       // App Name
                       const Text(
                         AppConstants.appName,
@@ -186,9 +194,9 @@ class _SplashScreenState extends State<SplashScreen>
                           letterSpacing: 1.2,
                         ),
                       ),
-                      
+
                       const SizedBox(height: 8),
-                      
+
                       // App Description
                       const Text(
                         AppConstants.appDescription,
@@ -198,15 +206,17 @@ class _SplashScreenState extends State<SplashScreen>
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                      
+
                       const SizedBox(height: 48),
-                      
+
                       // Loading Indicator
                       const SizedBox(
                         width: 32,
                         height: 32,
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                           strokeWidth: 3,
                         ),
                       ),
@@ -218,173 +228,6 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ),
       ),
-    );
-  }
-}
-
-// Temporary placeholder screens
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('TalkNotes Home'),
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.home,
-              size: 64,
-              color: AppColors.primary,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Welcome to TalkNotes!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Your AI-powered voice notes app',
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.grey600,
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to recording screen
-        },
-        child: const Icon(Icons.mic),
-      ),
-    );
-  }
-}
-
-class OnboardingScreen extends StatelessWidget {
-  const OnboardingScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppConstants.defaultPadding),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // App Icon
-              Icon(
-                Icons.mic_rounded,
-                size: 80,
-                color: AppColors.primary,
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // Title
-              const Text(
-                'Welcome to TalkNotes',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.black,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Description
-              Text(
-                'Transform your voice into organized, AI-powered notes in seconds.',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.grey600,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              
-              const SizedBox(height: 48),
-              
-              // Features
-              _buildFeature(Icons.mic, 'Record your voice'),
-              const SizedBox(height: 16),
-              _buildFeature(Icons.auto_fix_high, 'AI processes your speech'),
-              const SizedBox(height: 16),
-              _buildFeature(Icons.note_alt, 'Get organized notes'),
-              
-              const SizedBox(height: 48),
-              
-              // Get Started Button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    // Mark onboarding as completed
-                    await StorageService.setOnboardingCompleted(true);
-                    
-                    // Navigate to login
-                    if (context.mounted) {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Get Started',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFeature(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          color: AppColors.primary,
-          size: 24,
-        ),
-        const SizedBox(width: 16),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 16,
-            color: AppColors.grey700,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 }

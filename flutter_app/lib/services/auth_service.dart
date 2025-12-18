@@ -9,11 +9,13 @@ class AuthService {
   /// Register new user
   /// Backend expects: { email, password, name, auth_type }
   /// Backend returns: { RESULT: { success, message }, MESSAGE, STATUS, IS_TOKEN_EXPIRE }
-  Future<ApiResponse<AuthResponse>> registerUser(RegisterRequest request) async {
+  Future<ApiResponse<AuthResponse>> registerUser(
+    RegisterRequest request,
+  ) async {
     try {
       print('🚀 Attempting registration to: ${AppConstants.userRegister}');
       print('📊 Request data: ${request.toJson()}');
-      
+
       final response = await _dio.post(
         AppConstants.userRegister,
         data: request.toJson(),
@@ -74,7 +76,10 @@ class AuthService {
   /// Update user information
   /// Backend expects: { email?, name?, ... } in request body
   /// URL format: /user/updateUser/:userId
-  Future<ApiResponse<AuthResponse>> updateUser(String userId, Map<String, dynamic> userData) async {
+  Future<ApiResponse<AuthResponse>> updateUser(
+    String userId,
+    Map<String, dynamic> userData,
+  ) async {
     try {
       final response = await _dio.put(
         '${AppConstants.userProfile}/$userId',
@@ -102,7 +107,9 @@ class AuthService {
   /// Validate password according to backend requirements
   /// Backend requires: min 8 chars, uppercase, lowercase, number, special character
   bool isValidPassword(String password) {
-    final passwordRegex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
+    final passwordRegex = RegExp(
+      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
+    );
     return passwordRegex.hasMatch(password);
   }
 
@@ -113,7 +120,9 @@ class AuthService {
 
   /// Validate name (non-empty, reasonable length)
   bool isValidName(String name) {
-    return name.isNotEmpty && name.trim().length >= 2 && name.trim().length <= 50;
+    return name.isNotEmpty &&
+        name.trim().length >= 2 &&
+        name.trim().length <= 50;
   }
 
   /// Handle Dio errors and convert to readable messages
@@ -123,20 +132,21 @@ class AuthService {
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
         return 'Connection timeout. Please check your internet connection.';
-      
+
       case DioExceptionType.badResponse:
         if (e.response?.data != null) {
           // Try to parse backend error message
           try {
             final errorData = e.response!.data;
-            if (errorData is Map<String, dynamic> && errorData['MESSAGE'] != null) {
+            if (errorData is Map<String, dynamic> &&
+                errorData['MESSAGE'] != null) {
               return errorData['MESSAGE'];
             }
           } catch (_) {
             // If parsing fails, use status code message
           }
         }
-        
+
         switch (e.response?.statusCode) {
           case 400:
             return 'Invalid request. Please check your input.';
@@ -151,16 +161,16 @@ class AuthService {
           default:
             return 'Something went wrong. Please try again.';
         }
-      
+
       case DioExceptionType.cancel:
         return 'Request was cancelled.';
-      
+
       case DioExceptionType.unknown:
         if (e.error.toString().contains('SocketException')) {
           return 'No internet connection. Please check your network.';
         }
         return 'Network error occurred. Please try again.';
-      
+
       default:
         return 'An unexpected error occurred.';
     }

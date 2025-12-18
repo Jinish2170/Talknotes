@@ -28,11 +28,11 @@ class User {
       authType: json['auth_type'] ?? 'email',
       isAdmin: json['is_admin'] ?? false,
       isActive: json['is_active'] ?? true,
-      createdAt: json['createdAt'] != null 
-          ? DateTime.tryParse(json['createdAt']) 
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
           : null,
-      updatedAt: json['updatedAt'] != null 
-          ? DateTime.tryParse(json['updatedAt']) 
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
           : null,
     );
   }
@@ -105,16 +105,10 @@ class LoginRequest {
   final String email;
   final String password;
 
-  const LoginRequest({
-    required this.email,
-    required this.password,
-  });
+  const LoginRequest({required this.email, required this.password});
 
   Map<String, dynamic> toJson() {
-    return {
-      'email': email,
-      'password': password,
-    };
+    return {'email': email, 'password': password};
   }
 
   factory LoginRequest.fromJson(Map<String, dynamic> json) {
@@ -171,10 +165,13 @@ class ApiResponse<T> {
     this.isTokenExpire = 0,
   });
 
-  factory ApiResponse.fromJson(Map<String, dynamic> json, [T Function(Map<String, dynamic>)? fromJsonT]) {
+  factory ApiResponse.fromJson(
+    Map<String, dynamic> json, [
+    T Function(Map<String, dynamic>)? fromJsonT,
+  ]) {
     return ApiResponse<T>(
-      result: json['RESULT'] != null && fromJsonT != null 
-          ? fromJsonT(json['RESULT']) 
+      result: json['RESULT'] != null && fromJsonT != null
+          ? fromJsonT(json['RESULT'])
           : json['RESULT'] as T?,
       message: json['MESSAGE'] ?? '',
       status: json['STATUS'] ?? 0,
@@ -200,10 +197,7 @@ class AuthResponse {
   final bool success;
   final String message;
 
-  const AuthResponse({
-    required this.success,
-    required this.message,
-  });
+  const AuthResponse({required this.success, required this.message});
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
@@ -213,9 +207,6 @@ class AuthResponse {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'success': success,
-      'message': message,
-    };
+    return {'success': success, 'message': message};
   }
 }

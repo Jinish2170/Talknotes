@@ -6,7 +6,7 @@ import '../services/storage_service.dart';
 
 class NetworkConfig {
   static Dio? _dio;
-  
+
   static Dio get dio {
     if (_dio == null) {
       _dio = Dio();
@@ -14,7 +14,7 @@ class NetworkConfig {
     }
     return _dio!;
   }
-  
+
   static void _configureDio(Dio dio) {
     // Base configuration
     dio.options = BaseOptions(
@@ -27,11 +27,11 @@ class NetworkConfig {
         'Accept': 'application/json',
       },
     );
-    
+
     // Add interceptors
     dio.interceptors.add(_AuthInterceptor());
     dio.interceptors.add(_ErrorInterceptor());
-    
+
     // Add pretty logger in debug mode
     dio.interceptors.add(
       PrettyDioLogger(
@@ -45,7 +45,7 @@ class NetworkConfig {
       ),
     );
   }
-  
+
   // Special dio instance for audio upload with longer timeout
   static Dio get audioUploadDio {
     final audioDio = Dio();
@@ -59,17 +59,20 @@ class NetworkConfig {
         'Accept': 'application/json',
       },
     );
-    
+
     audioDio.interceptors.add(_AuthInterceptor());
     audioDio.interceptors.add(_ErrorInterceptor());
-    
+
     return audioDio;
   }
 }
 
 class _AuthInterceptor extends Interceptor {
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     // Add authorization header if token exists
     final token = await StorageService.getAccessToken();
     if (token != null) {
@@ -77,7 +80,7 @@ class _AuthInterceptor extends Interceptor {
     }
     handler.next(options);
   }
-  
+
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // Handle token refresh on 401
@@ -101,14 +104,14 @@ class _AuthInterceptor extends Interceptor {
     }
     handler.next(err);
   }
-  
+
   Future<String?> _refreshToken(String refreshToken) async {
     try {
       final response = await Dio().post(
         '${ApiEndpoints.currentBaseUrl}/user/refresh-token',
         data: {'refreshToken': refreshToken},
       );
-      
+
       if (response.statusCode == 200) {
         final newAccessToken = response.data['accessToken'];
         await StorageService.saveAccessToken(newAccessToken);

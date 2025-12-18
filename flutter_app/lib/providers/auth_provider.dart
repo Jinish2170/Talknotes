@@ -3,17 +3,11 @@ import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../services/storage_service.dart';
 
-enum AuthState {
-  initial,
-  loading,
-  authenticated,
-  unauthenticated,
-  error,
-}
+enum AuthState { initial, loading, authenticated, unauthenticated, error }
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService;
-  
+
   AuthState _state = AuthState.initial;
   User? _user;
   String? _errorMessage;
@@ -24,7 +18,8 @@ class AuthProvider with ChangeNotifier {
   User? get user => _user;
   String? get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
-  bool get isAuthenticated => _state == AuthState.authenticated && _user != null;
+  bool get isAuthenticated =>
+      _state == AuthState.authenticated && _user != null;
 
   AuthProvider(this._authService) {
     _checkAuthStatus();
@@ -60,18 +55,18 @@ class AuthProvider with ChangeNotifier {
   }) async {
     // Clear previous errors
     _clearError();
-    
+
     // Validate inputs
     if (!_authService.isValidEmail(email)) {
       _setError('Please enter a valid email address');
       return false;
     }
-    
+
     if (!_authService.isValidName(name)) {
       _setError('Name must be between 2-50 characters');
       return false;
     }
-    
+
     if (!_authService.isValidPassword(password)) {
       _setError(_authService.getPasswordValidationMessage());
       return false;
@@ -88,10 +83,12 @@ class AuthProvider with ChangeNotifier {
       );
 
       final response = await _authService.registerUser(request);
-      
+
       if (response.isSuccess) {
         // Registration successful
-        _setSuccess('Registration successful! Please login with your credentials.');
+        _setSuccess(
+          'Registration successful! Please login with your credentials.',
+        );
         return true;
       } else {
         _setError(response.message);
@@ -106,19 +103,16 @@ class AuthProvider with ChangeNotifier {
   }
 
   /// Login user
-  Future<bool> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> login({required String email, required String password}) async {
     // Clear previous errors
     _clearError();
-    
+
     // Validate inputs
     if (!_authService.isValidEmail(email)) {
       _setError('Please enter a valid email address');
       return false;
     }
-    
+
     if (password.isEmpty) {
       _setError('Password is required');
       return false;
@@ -133,7 +127,7 @@ class AuthProvider with ChangeNotifier {
       );
 
       final response = await _authService.loginUser(request);
-      
+
       if (response.isSuccess) {
         // Create user object (backend doesn't return user data, just success message)
         final user = User(
@@ -141,16 +135,16 @@ class AuthProvider with ChangeNotifier {
           name: '', // Will be updated when we fetch profile
           authType: 'email',
         );
-        
+
         // Save authentication state
         await StorageService.saveUserData(user);
         await StorageService.setLoggedIn(true);
-        
+
         _user = user;
         _state = AuthState.authenticated;
         _setLoading(false);
         notifyListeners();
-        
+
         return true;
       } else {
         _setError(response.message);
@@ -172,7 +166,7 @@ class AuthProvider with ChangeNotifier {
       // Clear stored data
       await StorageService.clearUserData();
       await StorageService.setLoggedIn(false);
-      
+
       // Reset state
       _user = null;
       _state = AuthState.unauthenticated;
@@ -185,10 +179,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   /// Update user profile
-  Future<bool> updateProfile({
-    String? name,
-    String? email,
-  }) async {
+  Future<bool> updateProfile({String? name, String? email}) async {
     if (_user == null) {
       _setError('User not logged in');
       return false;
@@ -198,12 +189,14 @@ class AuthProvider with ChangeNotifier {
 
     try {
       final updateData = <String, dynamic>{};
-      
+
       if (name != null && name.isNotEmpty && _authService.isValidName(name)) {
         updateData['name'] = name.trim();
       }
-      
-      if (email != null && email.isNotEmpty && _authService.isValidEmail(email)) {
+
+      if (email != null &&
+          email.isNotEmpty &&
+          _authService.isValidEmail(email)) {
         updateData['email'] = email.trim().toLowerCase();
       }
 
@@ -212,15 +205,18 @@ class AuthProvider with ChangeNotifier {
         return false;
       }
 
-      final response = await _authService.updateUser(_user!.id ?? '', updateData);
-      
+      final response = await _authService.updateUser(
+        _user!.id ?? '',
+        updateData,
+      );
+
       if (response.isSuccess) {
         // Update local user data
         _user = _user!.copyWith(
           name: name ?? _user!.name,
           email: email ?? _user!.email,
         );
-        
+
         await StorageService.saveUserData(_user!);
         notifyListeners();
         return true;
@@ -266,7 +262,9 @@ class AuthProvider with ChangeNotifier {
   void _clearError() {
     _errorMessage = null;
     if (_state == AuthState.error) {
-      _state = _user != null ? AuthState.authenticated : AuthState.unauthenticated;
+      _state = _user != null
+          ? AuthState.authenticated
+          : AuthState.unauthenticated;
     }
     notifyListeners();
   }

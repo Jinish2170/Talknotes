@@ -50,22 +50,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-                
+
                 // Header
                 _buildHeader(),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Register Form
                 _buildRegisterForm(),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Register Button
                 _buildRegisterButton(),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Login Link
                 _buildLoginLink(),
               ],
@@ -77,16 +77,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildHeader() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          Icons.person_add,
-          size: 32,
-          color: AppColors.primary,
-        ),
-        const SizedBox(height: 16),
-        const Text(
+        Icon(Icons.person_add, size: 32, color: AppColors.primary),
+        SizedBox(height: 16),
+        Text(
           'Create Account',
           style: TextStyle(
             fontSize: 28,
@@ -94,13 +90,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             color: AppColors.black,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Text(
           'Join TalkNotes and start your voice note journey',
-          style: TextStyle(
-            fontSize: 16,
-            color: AppColors.grey600,
-          ),
+          style: TextStyle(fontSize: 16, color: AppColors.grey600),
         ),
       ],
     );
@@ -119,7 +112,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             hintText: 'Enter your full name',
             prefixIcon: const Icon(Icons.person_outline),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+              borderRadius: BorderRadius.circular(
+                AppConstants.defaultBorderRadius,
+              ),
             ),
           ),
           validator: (value) {
@@ -132,9 +127,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             return null;
           },
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Email Field
         TextFormField(
           controller: _emailController,
@@ -145,7 +140,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             hintText: 'Enter your email',
             prefixIcon: const Icon(Icons.email_outlined),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+              borderRadius: BorderRadius.circular(
+                AppConstants.defaultBorderRadius,
+              ),
             ),
           ),
           validator: (value) {
@@ -158,9 +155,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             return null;
           },
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Password Field
         TextFormField(
           controller: _passwordController,
@@ -181,22 +178,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+              borderRadius: BorderRadius.circular(
+                AppConstants.defaultBorderRadius,
+              ),
             ),
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter your password';
             }
-            if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$').hasMatch(value)) {
+            if (!RegExp(
+              r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
+            ).hasMatch(value)) {
               return 'Password must be at least 8 characters with uppercase, lowercase, number, and special character';
             }
             return null;
           },
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Confirm Password Field
         TextFormField(
           controller: _confirmPasswordController,
@@ -213,11 +214,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 });
               },
               icon: Icon(
-                _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                _obscureConfirmPassword
+                    ? Icons.visibility
+                    : Icons.visibility_off,
               ),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+              borderRadius: BorderRadius.circular(
+                AppConstants.defaultBorderRadius,
+              ),
             ),
           ),
           validator: (value) {
@@ -247,27 +252,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 padding: const EdgeInsets.all(12),
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: authProvider.state == AuthState.error 
-                      ? Colors.red.shade50 
+                  color: authProvider.state == AuthState.error
+                      ? Colors.red.shade50
                       : Colors.green.shade50,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: authProvider.state == AuthState.error 
-                        ? Colors.red.shade200 
+                    color: authProvider.state == AuthState.error
+                        ? Colors.red.shade200
                         : Colors.green.shade200,
                   ),
                 ),
                 child: Text(
                   authProvider.errorMessage!,
                   style: TextStyle(
-                    color: authProvider.state == AuthState.error 
-                        ? Colors.red.shade700 
+                    color: authProvider.state == AuthState.error
+                        ? Colors.red.shade700
                         : Colors.green.shade700,
                     fontSize: 14,
                   ),
                 ),
               ),
-            
+
             // Register Button
             SizedBox(
               width: double.infinity,
@@ -278,7 +283,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
+                    borderRadius: BorderRadius.circular(
+                      AppConstants.defaultBorderRadius,
+                    ),
                   ),
                   elevation: 0,
                 ),
@@ -313,12 +320,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Navigator.of(context).pop();
         },
         child: RichText(
-          text: TextSpan(
+          text: const TextSpan(
             text: "Already have an account? ",
-            style: TextStyle(
-              color: AppColors.grey600,
-              fontSize: 16,
-            ),
+            style: TextStyle(color: AppColors.grey600, fontSize: 16),
             children: [
               TextSpan(
                 text: 'Sign In',
@@ -337,7 +341,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _handleRegister() async {
     // Clear any previous errors
     context.read<AuthProvider>().clearError();
-    
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
